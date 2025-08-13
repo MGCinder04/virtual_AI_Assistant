@@ -21,23 +21,28 @@ def spech_to_text(fs=44100):
         sd.wait()
 
         # save to temporary WAV file
-        with tempfile.NamedTemporaryFile(suffix=".wav") as tmpfile:
-            sf.write(tmpfile.name, audio_data, fs)
-            with sr.AudioFile(tmpfile.name) as source:
-                audio = r.record(source)
-                try:
-                    tries = 0
-                    voice_data = r.recognize_google(audio)
-                    return voice_data  # stop after successful recognition
-                except sr.UnknownValueError:
-                    # keep listening until speech is detected
-                    tries += 1
-                    if tries >= 5:
-                        speak.speak("Sorry, please try again")
-                        return None
-                    continue
-                except sr.RequestError:
-                    speak.speak("No internet connection, please turn on your internet")
-                    return None
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
+            tmpfile_name = tmpfile.name
 
-spech_to_text()
+        sf.write(tmpfile_name, audio_data, fs)
+
+        with sr.AudioFile(tmpfile_name) as source:
+            audio = r.record(source)
+
+            try:
+                voice_data = r.recognize_google(audio)
+                tries = 0
+                return voice_data  # stop after successful recognition
+            except sr.UnknownValueError:
+                # keep listening until speech is detected
+                tries += 1
+                if tries >= 5:
+                    speak.speak("Sorry, please try again")
+                    return None
+                continue
+            except sr.RequestError:
+                speak.speak("No internet connection, please turn on your internet")
+                return None
+
+
+print(spech_to_text())
