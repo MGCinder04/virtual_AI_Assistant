@@ -1,4 +1,4 @@
-env/
+venv/
 *:Zone.Identifier
-
+__pycache__/
 *.ps1

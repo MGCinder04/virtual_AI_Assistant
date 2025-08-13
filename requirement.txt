@@ -1,6 +1,7 @@
-pillow
-lxml
+Pillow
+sounddevice
+soundfile
+SpeechRecognition==3.8.1
 requests-html==0.10.0
 pyttsx3
-SpeechRecognition==3.8.1
-PyAudio
+numpy
