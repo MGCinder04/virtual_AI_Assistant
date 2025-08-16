@@ -7,14 +7,14 @@ from requests_html import HTMLSession
 import speak
 
 
-def spech_to_text(fs=44100):
+def speech2text(fs=44100):
     r = sr.Recognizer()
-    print("Listening...")
+    speak.speak("listening...")
 
     tries = 0
     while True:
         # record a short chunk (adjust duration if needed)
-        duration = 5  # seconds
+        duration = 3  # seconds
         audio_data = sd.rec(
             int(duration * fs), samplerate=fs, channels=1, dtype="float32"
         )
@@ -31,18 +31,16 @@ def spech_to_text(fs=44100):
 
             try:
                 voice_data = r.recognize_google(audio)
+                print(voice_data)
                 tries = 0
                 return voice_data  # stop after successful recognition
             except sr.UnknownValueError:
                 # keep listening until speech is detected
+                speak.speak("Sorry, please try again")
                 tries += 1
-                if tries >= 5:
-                    speak.speak("Sorry, please try again")
+                if tries > 2:
                     return None
                 continue
             except sr.RequestError:
                 speak.speak("No internet connection, please turn on your internet")
                 return None
-
-
-print(spech_to_text())
