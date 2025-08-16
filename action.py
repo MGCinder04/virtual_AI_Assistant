@@ -5,6 +5,8 @@ import wikipedia
 import pyjokes
 import glob
 import speak
+import ctypes
+import pygetwindow as gw
 
 
 def open_app(app_name):
@@ -101,9 +103,42 @@ def Action(send):
             return f"Could not open {app}"
 
     # Exit
-    elif "shutdown" in data_btn or "quit" in data_btn:
+    elif "exit" in data_btn or "quit" in data_btn:
         speak.speak("Okay, shutting down. Goodbye!")
         exit()
+    
+    elif "sleep" in data_btn:
+        speak.speak("Putting PC to sleep")
+        ctypes.windll.powrprof.SetSuspendState(0, 1, 0)
+        return "PC is going to sleep"
+
+    elif "restart" in data_btn:
+        speak.speak("Restarting PC")
+        os.system("shutdown /r /t 1")
+        return "Restarting PC"
+
+    elif "shutdown" in data_btn:
+        speak.speak("Shutting down PC")
+        os.system("shutdown /s /t 1")
+        return "Shutting down PC"
+
+    elif "close all windows" in data_btn:
+        speak.speak("Closing all open windows")
+        for window in gw.getAllTitles():
+            try:
+                gw.getWindowsWithTitle(window)[0].close()
+            except:
+                pass
+        return "Closed all windows"
+
+    elif "minimize all windows" in data_btn:
+        speak.speak("Minimizing all open windows")
+        for window in gw.getAllWindows():
+            try:
+                window.minimize()
+            except:
+                pass
+        return "Minimized all windows"
 
     else:
         speak.speak("I'm not sure how to help with that yet.")
