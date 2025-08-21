@@ -1,0 +1,39 @@
+### General Info ###
+- what is your name
+- hello / hi / hey
+- time
+- date / day
+- weather [city]
+- calculate <expression>
+
+### System Control ###
+- increase volume [number]
+- decrease volume [number]
+- set volume [number]
+- mute
+- unmute
+- increase brightness [number]
+- decrease brightness [number]
+- set brightness [number]
+- screenshot
+- sleep
+- restart
+- shutdown
+- exit / quit
+
+### Windows & Apps ###
+- open <app name>
+- close all windows
+- minimize all windows
+
+### Web & Search ###
+- open google
+- open youtube
+- search <query>
+- who is <person>
+- what is <topic>
+
+### Entertainment ###
+- play song [song name]
+- play music
+- joke

@@ -228,6 +228,16 @@ text.tag_configure("user", foreground="#3a86ff")
 text.tag_configure("bot", foreground="#ffbe0b")
 text.grid(row=2, column=0, padx=50, sticky="nsew")
 
+# Insert assistant commands as placeholder
+try:
+    with open("assistant_commands.txt", "r") as f:
+        commands_help = f.read()
+    text.insert("1.0", f"🤖 Available Commands:\n\n{commands_help}", "bot")
+    text.config(state=DISABLED)  # make placeholder uneditable
+except FileNotFoundError:
+    text.insert("1.0", "🤖 Available commands file not found.", "bot")
+    text.config(state=DISABLED)
+
 
 # ---- Entry (StyledInput) ----
 entry_frame = Frame(root, bg="#1e1e2f")
@@ -244,27 +254,32 @@ entry.grid(row=0, column=0, sticky="ew")
 def ask():
     ask_val = speech2text.speech2text()
     bot_val = action.Action(ask_val)
+    text.config(state=NORMAL)
     text.insert(END, "🧑 Me → " + ask_val + "\n", "user")
     if bot_val is not None:
         text.insert(END, "🤖 Bot ← " + str(bot_val) + "\n", "bot")
     if bot_val == "Okay, Goodbye!":
         root.destroy()
+    text.config(state=DISABLED)
 
 
 def send(event=None):
     send_val = entry.get()
     entry.delete(0, END)
     bot = action.Action(send_val)
+    text.config(state=NORMAL)
     text.insert(END, "🧑 Me → " + send_val + "\n", "user")
     if bot is not None:
         text.insert(END, "🤖 Bot ← " + str(bot) + "\n", "bot")
     if bot == "ok sir":
         root.destroy()
+    text.config(state=DISABLED)
     entry.entry.focus()
 
-
 def del_text():
+    text.config(state=NORMAL)
     text.delete("1.0", "end")
+    text.config(state=DISABLED)
 
 
 entry.entry.bind("<Return>", send)
