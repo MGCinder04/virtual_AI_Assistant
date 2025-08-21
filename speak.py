@@ -1,11 +1,9 @@
-# pip install pyttsx3
-
 import pyttsx3
+
+
 def speak(text):
     engine = pyttsx3.init()
-    rate = engine.getProperty('rate')
-    engine.setProperty('rate', rate-20)
+    rate = engine.getProperty("rate")
+    engine.setProperty("rate", rate - 20)
     engine.say(text)
-    print(text)
     engine.runAndWait()
-

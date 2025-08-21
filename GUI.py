@@ -1,5 +1,7 @@
 from tkinter import *
 from PIL import Image, ImageTk
+import speech2text
+import action
 
 root = Tk()
 root.title("AI Assistant")
@@ -9,15 +11,28 @@ root.config(bg="#6f8faf")
 
 
 def ask():
-    print("Ask")
+    ask_val = speech2text.speech2text()
+    bot_val = action.Action(ask_val)
+    text.insert(END, "Me --> " + ask_val + "\n")
+    if bot_val != None:
+        text.insert(END, "Bot <-- " + str(bot_val) + "\n")
+    if bot_val == "Okay, Goodbye!":
+        root.destroy()
 
 
-def send():
-    print("Send")
+def send(event = None):
+    send = entry.get()
+    entry.delete(0, END)
+    bot = action.Action(send)
+    text.insert(END, "Me --> " + send + "\n")
+    if bot != None:
+        text.insert(END, "Bot <-- " + str(bot) + "\n")
+    if bot == "Okay, Goodbye!":
+        root.destroy()
 
 
 def del_text():
-    print("deleting text...")
+    text.delete("1.0", "end")
 
 
 frame = LabelFrame(root, padx=100, pady=7, borderwidth=3, relief="raised")
@@ -39,6 +54,9 @@ text.place(x=100, y=375, width=375, height=100)
 
 entry = Entry(root, justify=CENTER)
 entry.place(x=100, y=500, width=350, height=30)
+entry.bind("<Return>", send)
+entry.focus()
+
 
 Button1 = Button(
     root,

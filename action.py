@@ -12,14 +12,12 @@ import pygetwindow as gw
 def open_app(app_name):
     app_name = app_name.lower()
 
-    # Try opening directly (works if in PATH)
     try:
         os.system(f"start {app_name}")
         return True
     except:
         pass
 
-    # Fallback: search in Start Menu and Desktop
     possible_paths = [
         os.path.expandvars(r"%APPDATA%\Microsoft\Windows\Start Menu\Programs"),
         os.path.expandvars(r"%ProgramData%\Microsoft\Windows\Start Menu\Programs"),
@@ -29,24 +27,25 @@ def open_app(app_name):
     for path in possible_paths:
         for file in glob.glob(path + "/**/*.lnk", recursive=True):
             if app_name in os.path.basename(file).lower():
-                os.startfile(file)  # works for shortcuts
+                os.startfile(file)  
                 return True
     return False
 
 
 def Action(send):
+    if send is None:
+        speak.speak("I'm not sure how to help with that yet.")
+        return "Command not recognized"
     data_btn = send.lower()
 
-    # Greetings
     if "your name" in data_btn:
         speak.speak("My name is Virtual Assistant")
         return "My name is Virtual Assistant"
 
-    elif "hello" in data_btn or "hi" in data_btn:
+    elif "hello" in data_btn or "hi" in data_btn or "hey" in data_btn:
         speak.speak("Hello! How can I help you today?")
         return "Hello! How can I help you today?"
 
-    # Date & Time
     elif "time" in data_btn:
         now = datetime.datetime.now().strftime("%I:%M %p")
         speak.speak(f"The time is {now}")
@@ -57,7 +56,6 @@ def Action(send):
         speak.speak(f"Today is {today}")
         return today
 
-    # Web browsing
     elif "open google" in data_btn:
         webbrowser.open("https://google.com")
         speak.speak("Opening Google")
@@ -75,7 +73,6 @@ def Action(send):
         speak.speak(f"Here are results for {query}")
         return f"Searched: {query}"
 
-    # Wikipedia
     elif "who is" in data_btn or "what is" in data_btn:
         query = data_btn.replace("who is", "").replace("what is", "").strip()
         try:
@@ -86,13 +83,11 @@ def Action(send):
             speak.speak("Sorry, I couldn't find that on Wikipedia.")
             return "No result found"
 
-    # Fun
     elif "joke" in data_btn:
         joke = pyjokes.get_joke()
         speak.speak(joke)
         return joke
 
-    # Generalized App Opening with fallback
     elif "open" in data_btn:
         app = data_btn.replace("open", "").strip()
         if open_app(app):
@@ -102,11 +97,11 @@ def Action(send):
             speak.speak(f"Sorry, I couldn't find {app}")
             return f"Could not open {app}"
 
-    # Exit
     elif "exit" in data_btn or "quit" in data_btn:
-        speak.speak("Okay, shutting down. Goodbye!")
+        speak.speak("Okay, Goodbye!")
+        return "Okay, Goodbye!"
         exit()
-    
+
     elif "sleep" in data_btn:
         speak.speak("Putting PC to sleep")
         ctypes.windll.powrprof.SetSuspendState(0, 1, 0)
@@ -139,6 +134,28 @@ def Action(send):
             except:
                 pass
         return "Minimized all windows"
+
+    elif "weather" in data_btn:
+        import requests
+
+        api_key = "63fc809576ac39941ca7cce0aac40205"  
+
+        city = data_btn.replace("weather", "").replace("in", "").strip()
+        if not city:
+            city = "Kanpur"  
+
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+        response = requests.get(url).json()
+
+        if response.get("main"):
+            temp = response["main"]["temp"]
+            desc = response["weather"][0]["description"]
+            result = f"The weather in {city} is {desc} with {temp} degrees Celsius"
+            speak.speak(result)
+            return result
+        else:
+            speak.speak("Sorry, I couldn't fetch the weather right now.")
+            return "Weather data not available"
 
     else:
         speak.speak("I'm not sure how to help with that yet.")

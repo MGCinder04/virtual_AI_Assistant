@@ -13,14 +13,12 @@ def speech2text(fs=44100):
 
     tries = 0
     while True:
-        # record a short chunk (adjust duration if needed)
-        duration = 3  # seconds
+        duration = 4  # seconds
         audio_data = sd.rec(
             int(duration * fs), samplerate=fs, channels=1, dtype="float32"
         )
         sd.wait()
 
-        # save to temporary WAV file
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
             tmpfile_name = tmpfile.name
 
@@ -33,9 +31,8 @@ def speech2text(fs=44100):
                 voice_data = r.recognize_google(audio)
                 print(voice_data)
                 tries = 0
-                return voice_data  # stop after successful recognition
+                return voice_data  
             except sr.UnknownValueError:
-                # keep listening until speech is detected
                 speak.speak("Sorry, please try again")
                 tries += 1
                 if tries > 2:
@@ -44,3 +41,4 @@ def speech2text(fs=44100):
             except sr.RequestError:
                 speak.speak("No internet connection, please turn on your internet")
                 return None
+
