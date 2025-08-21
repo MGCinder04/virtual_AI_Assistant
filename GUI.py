@@ -7,7 +7,7 @@ import action
 
 class GradientButton(Canvas):
     def __init__(self, parent, text="Button", command=None, **kwargs):
-        super().__init__(parent, width=120, height=40, highlightthickness=0, **kwargs)
+        super().__init__(parent, width=220, height=80, highlightthickness=0, **kwargs)
 
         self.command = command
         self.text = text
@@ -19,10 +19,14 @@ class GradientButton(Canvas):
 
         # Draw button
         self.round_rect = self.create_rounded_rect(
-            5, 5, 115, 35, 10, fill=self.base_color
+            5, 5, 215, 75, 20, fill=self.base_color  # ← bigger button rect
         )
         self.text_item = self.create_text(
-            60, 20, text=self.text, fill=self.text_color, font=("Segoe UI", 11, "bold")
+            110,
+            40,  # ← center of 220x80
+            text=self.text,
+            fill=self.text_color,
+            font=("Segoe UI", 16, "bold"),  # ← bigger font
         )
 
         # Bind events
@@ -184,9 +188,42 @@ class StyledInput(Canvas):
         self.entry.delete(start, end)
 
 
+# ---- Functions ----
+def ask():
+    ask_val = speech2text.speech2text()
+    bot_val = action.Action(ask_val)
+    text.config(state=NORMAL)
+    text.insert(END, "🧑 Me → " + ask_val + "\n", "user")
+    if bot_val is not None:
+        text.insert(END, "🤖 Bot ← " + str(bot_val) + "\n", "bot")
+    if bot_val == "Okay, Goodbye!":
+        root.destroy()
+    text.config(state=DISABLED)
+
+
+def send(event=None):
+    send_val = entry.get()
+    entry.delete(0, END)
+    bot = action.Action(send_val)
+    text.config(state=NORMAL)
+    text.insert(END, "🧑 Me → " + send_val + "\n", "user")
+    if bot is not None:
+        text.insert(END, "🤖 Bot ← " + str(bot) + "\n", "bot")
+    if bot == "ok sir":
+        root.destroy()
+    text.config(state=DISABLED)
+    entry.entry.focus()
+
+
+def del_text():
+    text.config(state=NORMAL)
+    text.delete("1.0", "end")
+    text.config(state=DISABLED)
+
+
 root = Tk()
 root.title("AI Assistant")
-root.geometry("600x700")
+root.geometry("1200x1400")
 root.resizable(False, False)
 root.config(bg="#1e1e2f")
 
@@ -208,7 +245,7 @@ title = Label(
 )
 title.grid(row=0, column=0, pady=5)
 
-image = ImageTk.PhotoImage(Image.open("image/assitant.png").resize((120, 120)))
+image = ImageTk.PhotoImage(Image.open("image/assitant.png").resize((200, 200)))
 image_label = Label(frame, image=image, bg="#2b2d42")
 image_label.grid(row=1, column=0, pady=5)
 
@@ -245,41 +282,9 @@ entry_frame.grid(row=3, column=0, padx=50, pady=10, sticky="ew")
 entry_frame.grid_columnconfigure(0, weight=1)
 
 entry = StyledInput(
-    entry_frame, width=500, height=44, placeholder="Type here...", bg=entry_frame["bg"]
+    entry_frame, width=1100, height=60, placeholder="Type here...", bg=entry_frame["bg"]
 )
 entry.grid(row=0, column=0, sticky="ew")
-
-
-# ---- Functions ----
-def ask():
-    ask_val = speech2text.speech2text()
-    bot_val = action.Action(ask_val)
-    text.config(state=NORMAL)
-    text.insert(END, "🧑 Me → " + ask_val + "\n", "user")
-    if bot_val is not None:
-        text.insert(END, "🤖 Bot ← " + str(bot_val) + "\n", "bot")
-    if bot_val == "Okay, Goodbye!":
-        root.destroy()
-    text.config(state=DISABLED)
-
-
-def send(event=None):
-    send_val = entry.get()
-    entry.delete(0, END)
-    bot = action.Action(send_val)
-    text.config(state=NORMAL)
-    text.insert(END, "🧑 Me → " + send_val + "\n", "user")
-    if bot is not None:
-        text.insert(END, "🤖 Bot ← " + str(bot) + "\n", "bot")
-    if bot == "ok sir":
-        root.destroy()
-    text.config(state=DISABLED)
-    entry.entry.focus()
-
-def del_text():
-    text.config(state=NORMAL)
-    text.delete("1.0", "end")
-    text.config(state=DISABLED)
 
 
 entry.entry.bind("<Return>", send)
