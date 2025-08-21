@@ -54,7 +54,7 @@ def Action(send):
         speak.speak("My name is Virtual Assistant")
         return "My name is Virtual Assistant"
 
-    elif "hello" in data_btn or "hi" in data_btn or "hey" in data_btn:
+    elif "hello" in data_btn or "hey" in data_btn:
         speak.speak("Hello! How can I help you today?")
         return "Hello! How can I help you today?"
 

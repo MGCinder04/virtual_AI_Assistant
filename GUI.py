@@ -196,6 +196,7 @@ def ask():
     text.insert(END, "🧑 Me → " + ask_val + "\n", "user")
     if bot_val is not None:
         text.insert(END, "🤖 Bot ← " + str(bot_val) + "\n", "bot")
+    text.see(END)
     if bot_val == "Okay, Goodbye!":
         root.destroy()
     text.config(state=DISABLED)
@@ -209,6 +210,7 @@ def send(event=None):
     text.insert(END, "🧑 Me → " + send_val + "\n", "user")
     if bot is not None:
         text.insert(END, "🤖 Bot ← " + str(bot) + "\n", "bot")
+    text.see(END)
     if bot == "ok sir":
         root.destroy()
     text.config(state=DISABLED)
@@ -219,6 +221,17 @@ def del_text():
     text.config(state=NORMAL)
     text.delete("1.0", "end")
     text.config(state=DISABLED)
+
+
+def show_commands():
+    text.config(state=NORMAL)  # make editable
+    try:
+        with open("assistant_commands.txt", "r") as f:
+            commands_help = f.read()
+        text.insert("1.0", f"🤖 Available Commands:\n\n{commands_help}", "bot")
+    except FileNotFoundError:
+        text.insert("1.0", "🤖 Available commands file not found.", "bot")
+    text.config(state=DISABLED)  # lock again
 
 
 root = Tk()
@@ -266,14 +279,7 @@ text.tag_configure("bot", foreground="#ffbe0b")
 text.grid(row=2, column=0, padx=50, sticky="nsew")
 
 # Insert assistant commands as placeholder
-try:
-    with open("assistant_commands.txt", "r") as f:
-        commands_help = f.read()
-    text.insert("1.0", f"🤖 Available Commands:\n\n{commands_help}", "bot")
-    text.config(state=DISABLED)  # make placeholder uneditable
-except FileNotFoundError:
-    text.insert("1.0", "🤖 Available commands file not found.", "bot")
-    text.config(state=DISABLED)
+show_commands()
 
 
 # ---- Entry (StyledInput) ----
@@ -305,7 +311,11 @@ send_btn.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 del_btn = GradientButton(btn_frame, text="🧹 Clear", command=del_text, bg="#1e1e2f")
 del_btn.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
 
-exit_btn = GradientButton(btn_frame, text="❎ Exit", command=root.destroy, bg="#1e1e2f")
-exit_btn.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
+commands_btn = GradientButton(
+    btn_frame, text="📜 Commands", command=show_commands, bg="#1e1e2f"
+)
+commands_btn.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
+commands_btn.itemconfig(commands_btn.text_item, font=("Segoe UI", 10, "bold"))
+
 
 root.mainloop()
