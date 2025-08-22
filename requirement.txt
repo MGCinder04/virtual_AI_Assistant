@@ -13,3 +13,4 @@ comtypes>=1.1.14
 pycaw>=20230407
 screen-brightness-control>=0.22.2
 Pillow>=9.5.0
+lxml_html_clean>=0.2.0
