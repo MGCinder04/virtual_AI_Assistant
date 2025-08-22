@@ -155,7 +155,7 @@ Then update **`assistant_commands.txt`** to document it.
   Check your default audio input device and ensure permissions are allowed.
 
 * **Assistant window too small?**
-  Adjust `root.geometry("")` in `gui.py`.
+  Adjust `root.geometry("1200x1400")` in `gui.py`.
 
 * **Dependencies not installing?**
   Ensure you’re using **Python 3.10.11** and a clean virtual environment.
