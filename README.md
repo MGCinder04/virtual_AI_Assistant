@@ -97,7 +97,6 @@ python gui.py
 ### Keyboard Shortcuts
 
 * **Enter** → Send message
-* **Esc** → (Optional) Can be bound to exit
 
 ### Example Commands
 
@@ -156,7 +155,7 @@ Then update **`assistant_commands.txt`** to document it.
   Check your default audio input device and ensure permissions are allowed.
 
 * **Assistant window too small?**
-  Adjust `root.geometry("600x700")` in `gui.py`.
+  Adjust `root.geometry("")` in `gui.py`.
 
 * **Dependencies not installing?**
   Ensure you’re using **Python 3.10.11** and a clean virtual environment.
