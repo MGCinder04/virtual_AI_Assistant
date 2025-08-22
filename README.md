@@ -67,7 +67,7 @@ pip install -r requirements.txt
 Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/virtual-assistant.git
+https://github.com/MGCinder04/virtual_AI_Assistant.git
 cd virtual-assistant
 ```
 
