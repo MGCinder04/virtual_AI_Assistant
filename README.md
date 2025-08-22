@@ -85,6 +85,46 @@ python gui.py
 
 ---
 
+## 💾 Build EXE (Windows)
+
+You can package the assistant into a standalone **.exe** so it runs without needing Python.
+
+### 1. Install PyInstaller
+
+```bash
+pip install pyinstaller
+```
+
+### 2. Build the executable
+
+From the project root (`virtual-assistant/`), run:
+
+```bash
+pyinstaller --onefile --noconsole --name VirtualAssistant \
+  --add-data "image;image" \
+  --add-data "assistant_commands.txt;." \
+  gui.py
+```
+
+### 3. Locate the exe
+
+After the build completes, your exe will be available at:
+
+```
+dist/VirtualAssistant.exe
+```
+
+### 4. Run it
+
+Double-click the exe to start the assistant. 🎉
+
+---
+
+⚡ **Tip for developers:**
+If you update `gui.py` or any other source file, rebuild the exe using the same command. To save time, you can create a `build.bat` file with the PyInstaller command and just double-click it whenever you want to regenerate the exe.
+
+---
+
 ## 🧑‍💻 Usage Guide
 
 ### GUI Overview
