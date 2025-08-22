@@ -3,7 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import speech2text
 import action
-
+import sys, os
 
 class GradientButton(Canvas):
     def __init__(self, parent, text="Button", command=None, **kwargs):
@@ -13,23 +13,23 @@ class GradientButton(Canvas):
         self.text = text
 
         # Colors
-        self.base_color = "#4a6cf7"  # main background
-        self.light_color = "#6f8dfd"  # lighter gradient
+        self.base_color = "#4a6cf7"  
+        self.light_color = "#6f8dfd"  
         self.text_color = "#e5e5e5"
 
         # Draw button
         self.round_rect = self.create_rounded_rect(
-            5, 5, 215, 75, 20, fill=self.base_color  # ← bigger button rect
+            5, 5, 215, 75, 20, fill=self.base_color  
         )
         self.text_item = self.create_text(
             110,
-            40,  # ← center of 220x80
+            40,  
             text=self.text,
             fill=self.text_color,
-            font=("Segoe UI", 16, "bold"),  # ← bigger font
+            font=("Segoe UI", 16, "bold"),  
         )
 
-        # Bind events
+        
         self.bind("<Enter>", self.on_hover)
         self.bind("<Leave>", self.on_leave)
         self.bind("<ButtonPress-1>", self.on_press)
@@ -66,7 +66,7 @@ class GradientButton(Canvas):
 
     def on_hover(self, event):
         self.itemconfig(self.round_rect, fill=self.light_color)
-        self.itemconfig(self.text_item, fill="white")  # brighten text too
+        self.itemconfig(self.text_item, fill="white")  
 
     def on_leave(self, event):
         self.itemconfig(self.round_rect, fill=self.base_color)
@@ -87,7 +87,7 @@ class StyledInput(Canvas):
     def __init__(
         self, parent, width=190, height=40, placeholder="Type here...", **kwargs
     ):
-        bg = kwargs.pop("bg", parent.cget("bg"))  # inherit parent bg
+        bg = kwargs.pop("bg", parent.cget("bg"))  
         super().__init__(
             parent, width=width, height=height, highlightthickness=0, bg=bg, **kwargs
         )
@@ -95,10 +95,10 @@ class StyledInput(Canvas):
         self.border_color = "#8707ff"
         self.text_color = "white"
         self.placeholder_color = "gray"
-        self.bg_color = bg  # match canvas instead of black!
+        self.bg_color = bg  
         self.placeholder = placeholder
 
-        # Rounded border only
+        
         self.round_rect = self.create_rounded_rect(
             2, 2, width - 2, height - 2, 10, outline=self.border_color, width=2
         )
@@ -108,12 +108,12 @@ class StyledInput(Canvas):
             self,
             bd=0,
             fg=self.placeholder_color,
-            bg=self.bg_color,  # match canvas bg
+            bg=self.bg_color,  
             insertbackground="white",
             font=("Segoe UI", 12),
             relief="flat",
         )
-        # Center entry with padding so text doesn’t touch border
+        
         self.entry_window = self.create_window(
             width // 2,
             height // 2,
@@ -122,10 +122,10 @@ class StyledInput(Canvas):
             height=height - 10,
         )
 
-        # Insert placeholder
+        
         self.entry.insert(0, self.placeholder)
 
-        # Bind events
+        
         self.entry.bind("<FocusIn>", self.on_focus_in)
         self.entry.bind("<FocusOut>", self.on_focus_out)
         self.entry.bind("<FocusIn>", self.on_active, add="+")
@@ -211,7 +211,7 @@ def send(event=None):
     if bot is not None:
         text.insert(END, "🤖 Bot ← " + str(bot) + "\n", "bot")
     text.see(END)
-    if bot == "ok sir":
+    if bot == "Okay, Goodbye!":
         root.destroy()
     text.config(state=DISABLED)
     entry.entry.focus()
@@ -224,14 +224,22 @@ def del_text():
 
 
 def show_commands():
-    text.config(state=NORMAL)  # make editable
+    text.config(state=NORMAL) 
     try:
-        with open("assistant_commands.txt", "r") as f:
+        with open(resource_path("assistant_commands.txt"), "r") as f:
             commands_help = f.read()
         text.insert("1.0", f"🤖 Available Commands:\n\n{commands_help}", "bot")
     except FileNotFoundError:
         text.insert("1.0", "🤖 Available commands file not found.", "bot")
-    text.config(state=DISABLED)  # lock again
+    text.config(state=DISABLED)  
+
+
+def resource_path(rel_path):
+    try:
+        base = sys._MEIPASS
+    except AttributeError:
+        base = os.path.abspath(".")
+    return os.path.join(base, rel_path)
 
 
 root = Tk()
@@ -258,7 +266,9 @@ title = Label(
 )
 title.grid(row=0, column=0, pady=5)
 
-image = ImageTk.PhotoImage(Image.open("image/assitant.png").resize((200, 200)))
+image = ImageTk.PhotoImage(
+    Image.open(resource_path("image/assistant.png")).resize((200, 200))
+)
 image_label = Label(frame, image=image, bg="#2b2d42")
 image_label.grid(row=1, column=0, pady=5)
 
@@ -278,9 +288,7 @@ text.tag_configure("user", foreground="#3a86ff")
 text.tag_configure("bot", foreground="#ffbe0b")
 text.grid(row=2, column=0, padx=50, sticky="nsew")
 
-# Insert assistant commands as placeholder
 show_commands()
-
 
 # ---- Entry (StyledInput) ----
 entry_frame = Frame(root, bg="#1e1e2f")
@@ -319,3 +327,6 @@ commands_btn.itemconfig(commands_btn.text_item, font=("Segoe UI", 10, "bold"))
 
 
 root.mainloop()
+
+if __name__ == "__main__":
+    pass  

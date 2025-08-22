@@ -1,4 +1,22 @@
-venv/
-*:Zone.Identifier
+# Python cache
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
 *.ps1
+
+# Virtual environment
+venv/
+
+# PyInstaller build
+build/
+dist/
+*.spec
+
+# VS Code settings (optional, if you don’t want to share them)
+.vscode/
+
+# OS junk files
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
