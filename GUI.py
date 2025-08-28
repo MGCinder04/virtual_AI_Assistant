@@ -3,8 +3,8 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import speech2text
 import action
-import threading
 import sys, os
+
 
 class GradientButton(Canvas):
     def __init__(self, parent, text="Button", command=None, **kwargs):
@@ -14,23 +14,22 @@ class GradientButton(Canvas):
         self.text = text
 
         # Colors
-        self.base_color = "#4a6cf7"  
-        self.light_color = "#6f8dfd"  
+        self.base_color = "#4a6cf7"
+        self.light_color = "#6f8dfd"
         self.text_color = "#e5e5e5"
 
         # Draw button
         self.round_rect = self.create_rounded_rect(
-            5, 5, 215, 75, 20, fill=self.base_color  
+            5, 5, 215, 75, 20, fill=self.base_color
         )
         self.text_item = self.create_text(
             110,
-            40,  
+            40,
             text=self.text,
             fill=self.text_color,
-            font=("Segoe UI", 16, "bold"),  
+            font=("Segoe UI", 16, "bold"),
         )
 
-        
         self.bind("<Enter>", self.on_hover)
         self.bind("<Leave>", self.on_leave)
         self.bind("<ButtonPress-1>", self.on_press)
@@ -67,7 +66,7 @@ class GradientButton(Canvas):
 
     def on_hover(self, event):
         self.itemconfig(self.round_rect, fill=self.light_color)
-        self.itemconfig(self.text_item, fill="white")  
+        self.itemconfig(self.text_item, fill="white")
 
     def on_leave(self, event):
         self.itemconfig(self.round_rect, fill=self.base_color)
@@ -88,7 +87,7 @@ class StyledInput(Canvas):
     def __init__(
         self, parent, width=190, height=40, placeholder="Type here...", **kwargs
     ):
-        bg = kwargs.pop("bg", parent.cget("bg"))  
+        bg = kwargs.pop("bg", parent.cget("bg"))
         super().__init__(
             parent, width=width, height=height, highlightthickness=0, bg=bg, **kwargs
         )
@@ -96,7 +95,7 @@ class StyledInput(Canvas):
         self.border_color = "#8707ff"
         self.text_color = "white"
         self.placeholder_color = "gray"
-        self.bg_color = bg  
+        self.bg_color = bg
         self.placeholder = placeholder
 
         self.round_rect = self.create_rounded_rect(
@@ -108,7 +107,7 @@ class StyledInput(Canvas):
             self,
             bd=0,
             fg=self.placeholder_color,
-            bg=self.bg_color,  
+            bg=self.bg_color,
             insertbackground="white",
             font=("Segoe UI", 12),
             relief="flat",
@@ -187,39 +186,31 @@ class StyledInput(Canvas):
 
 
 # ---- Functions ----
-
-def append_chat(role, msg):
-    if msg is None or msg == "":
-        return
-    text.config(state=NORMAL)
-    prefix = "🧑 Me → " if role == "user" else "🤖 Bot ← "
-    tag = "user" if role == "user" else "bot"
-    text.insert(END, prefix + str(msg) + "\n", tag)
-    text.see(END)
-    text.config(state=DISABLED)
-
 def ask():
-    def work():
-        ask_val = speech2text.speech2text()
-        if ask_val:
-            root.after(0, lambda: append_chat("user", ask_val))
-        bot_val = action.Action(ask_val)
-        if bot_val is not None:
-            root.after(0, lambda: append_chat("bot", bot_val))
-        if bot_val == "Okay, Goodbye!":
-            root.after(0, root.destroy)
-    threading.Thread(target=work, daemon=True).start()
+    ask_val = speech2text.speech2text()
+    bot_val = action.Action(ask_val)
+    text.config(state=NORMAL)
+    text.insert(END, "🧑 Me → " + ask_val + "\n", "user")
+    if bot_val is not None:
+        text.insert(END, "🤖 Bot ← " + str(bot_val) + "\n", "bot")
+    text.see(END)
+    if bot_val == "Okay, Goodbye!":
+        root.destroy()
+    text.config(state=DISABLED)
 
 
 def send(event=None):
     send_val = entry.get()
     entry.delete(0, END)
     bot = action.Action(send_val)
-    append_chat("user", send_val)
+    text.config(state=NORMAL)
+    text.insert(END, "🧑 Me → " + send_val + "\n", "user")
     if bot is not None:
-        append_chat("bot", bot)
+        text.insert(END, "🤖 Bot ← " + str(bot) + "\n", "bot")
+    text.see(END)
     if bot == "Okay, Goodbye!":
         root.destroy()
+    text.config(state=DISABLED)
     entry.entry.focus()
 
 
@@ -230,14 +221,14 @@ def del_text():
 
 
 def show_commands():
-    text.config(state=NORMAL) 
+    text.config(state=NORMAL)
     try:
         with open(resource_path("assistant_commands.txt"), "r") as f:
             commands_help = f.read()
         text.insert("1.0", f"🤖 Available Commands:\n\n{commands_help}", "bot")
     except FileNotFoundError:
         text.insert("1.0", "🤖 Available commands file not found.", "bot")
-    text.config(state=DISABLED)  
+    text.config(state=DISABLED)
 
 
 def resource_path(rel_path):
@@ -308,10 +299,6 @@ entry.grid(row=0, column=0, sticky="ew")
 
 
 entry.entry.bind("<Return>", send)
-root.bind("<F9>", lambda e: ask())
-root.bind("<F1>", lambda e: show_commands())
-root.bind("<Control-l>", lambda e: del_text())
-entry.entry.focus_set()
 
 
 # ---- Buttons ----
@@ -339,4 +326,4 @@ commands_btn.itemconfig(commands_btn.text_item, font=("Segoe UI", 10, "bold"))
 root.mainloop()
 
 if __name__ == "__main__":
-    pass  
+    pass

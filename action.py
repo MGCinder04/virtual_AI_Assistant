@@ -13,8 +13,6 @@ from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 import screen_brightness_control as sbc
-import ast
-import math
 
 
 def open_app(app_name):
@@ -44,50 +42,6 @@ def get_volume_interface():
     devices = AudioUtilities.GetSpeakers()
     interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
     return cast(interface, POINTER(IAudioEndpointVolume))
-
-
-_ALLOWED_BINOPS = (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod, ast.Pow)
-_ALLOWED_UNARY = (ast.UAdd, ast.USub)
-
-
-def _safe_eval(expr: str):
-    node = ast.parse(expr, mode="eval")
-
-    def _eval(n):
-        if isinstance(n, ast.Expression):
-            return _eval(n.body)
-        if isinstance(n, ast.Constant) and isinstance(n.value, (int, float)):
-            return n.value
-        if isinstance(n, ast.BinOp) and isinstance(n.op, _ALLOWED_BINOPS):
-            return (
-                _eval(n.left) ** 1 + 0 if isinstance(n.op, ast.Pow) else None
-            )  # structure only
-        if isinstance(n, ast.BinOp) and isinstance(n.op, _ALLOWED_BINOPS):
-            left, right = _eval(n.left), _eval(n.right)
-            if isinstance(n.op, ast.Add):
-                return left + right
-            if isinstance(n.op, ast.Sub):
-                return left - right
-            if isinstance(n.op, ast.Mult):
-                return left * right
-            if isinstance(n.op, ast.Div):
-                return left / right
-            if isinstance(n.op, ast.FloorDiv):
-                return left // right
-            if isinstance(n.op, ast.Mod):
-                return left % right
-            if isinstance(n.op, ast.Pow):
-                return left**right
-        if isinstance(n, ast.UnaryOp) and isinstance(n.op, _ALLOWED_UNARY):
-            val = _eval(n.operand)
-            return +val if isinstance(n.op, ast.UAdd) else -val
-        if isinstance(n, ast.Call) and isinstance(n.func, ast.Name):
-            name = n.func.id
-            if name in {"sqrt", "sin", "cos", "tan", "log", "exp"} and len(n.args) == 1:
-                return getattr(math, name)(_eval(n.args[0]))
-        raise ValueError("Unsafe or unsupported expression")
-
-    return _eval(node)
 
 
 def Action(send):
@@ -289,13 +243,12 @@ def Action(send):
     elif "calculate" in data_btn:
         try:
             expr = data_btn.replace("calculate", "").strip()
-            result = _safe_eval(expr)
+            result = eval(expr)
             speak.speak(f"The result is {result}")
             return result
-        except Exception:
-            speak.speak("Sorry, I couldn't calculate that safely")
+        except:
+            speak.speak("Sorry, I couldn't calculate that")
             return "Calculation error"
-
 
     elif "screenshot" in data_btn:
         filename = f"screenshot_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
