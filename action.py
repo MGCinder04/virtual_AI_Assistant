@@ -13,6 +13,46 @@ from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 import screen_brightness_control as sbc
+import ast, operator as op  # add if not already
+
+_ALLOWED = {
+    ast.Add: op.add,
+    ast.Sub: op.sub,
+    ast.Mult: op.mul,
+    ast.Div: op.truediv,
+    ast.Pow: op.pow,
+    ast.Mod: op.mod,
+    ast.FloorDiv: op.floordiv,
+    ast.UAdd: op.pos,
+    ast.USub: op.neg,
+}
+
+
+def safe_calc(text: str):
+    expr = (
+        text.replace("calculate", "")
+        .replace("^", "**")
+        .replace("x", "*")
+        .replace("X", "*")
+        .replace("÷", "/")
+        .replace("–", "-")
+        .strip()
+    )
+
+    def eval_node(n):
+        if isinstance(n, ast.Constant) and isinstance(n.value, (int, float)):
+            return n.value
+        if isinstance(n, ast.Num):
+            return n.n
+        if isinstance(n, ast.BinOp) and type(n.op) in _ALLOWED:
+            return _ALLOWED[type(n.op)](eval_node(n.left), eval_node(n.right))
+        if isinstance(n, ast.UnaryOp) and type(n.op) in _ALLOWED:
+            return _ALLOWED[type(n.op)](eval_node(n.operand))
+        if isinstance(n, ast.Expr):
+            return eval_node(n.value)
+        raise ValueError("Unsupported expression")
+
+    return eval_node(ast.parse(expr, mode="eval").body)
 
 
 def open_app(app_name):
@@ -242,13 +282,13 @@ def Action(send):
 
     elif "calculate" in data_btn:
         try:
-            expr = data_btn.replace("calculate", "").strip()
-            result = eval(expr)
+            result = safe_calc(data_btn)
             speak.speak(f"The result is {result}")
             return result
         except:
             speak.speak("Sorry, I couldn't calculate that")
             return "Calculation error"
+
 
     elif "screenshot" in data_btn:
         filename = f"screenshot_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
