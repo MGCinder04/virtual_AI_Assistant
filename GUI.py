@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import speech2text
 import action
+import threading
 import sys, os
 
 class GradientButton(Canvas):
@@ -98,7 +99,6 @@ class StyledInput(Canvas):
         self.bg_color = bg  
         self.placeholder = placeholder
 
-        
         self.round_rect = self.create_rounded_rect(
             2, 2, width - 2, height - 2, 10, outline=self.border_color, width=2
         )
@@ -113,7 +113,7 @@ class StyledInput(Canvas):
             font=("Segoe UI", 12),
             relief="flat",
         )
-        
+
         self.entry_window = self.create_window(
             width // 2,
             height // 2,
@@ -122,10 +122,8 @@ class StyledInput(Canvas):
             height=height - 10,
         )
 
-        
         self.entry.insert(0, self.placeholder)
 
-        
         self.entry.bind("<FocusIn>", self.on_focus_in)
         self.entry.bind("<FocusOut>", self.on_focus_out)
         self.entry.bind("<FocusIn>", self.on_active, add="+")
@@ -189,31 +187,39 @@ class StyledInput(Canvas):
 
 
 # ---- Functions ----
-def ask():
-    ask_val = speech2text.speech2text()
-    bot_val = action.Action(ask_val)
+
+def append_chat(role, msg):
+    if msg is None or msg == "":
+        return
     text.config(state=NORMAL)
-    text.insert(END, "🧑 Me → " + ask_val + "\n", "user")
-    if bot_val is not None:
-        text.insert(END, "🤖 Bot ← " + str(bot_val) + "\n", "bot")
+    prefix = "🧑 Me → " if role == "user" else "🤖 Bot ← "
+    tag = "user" if role == "user" else "bot"
+    text.insert(END, prefix + str(msg) + "\n", tag)
     text.see(END)
-    if bot_val == "Okay, Goodbye!":
-        root.destroy()
     text.config(state=DISABLED)
+
+def ask():
+    def work():
+        ask_val = speech2text.speech2text()
+        if ask_val:
+            root.after(0, lambda: append_chat("user", ask_val))
+        bot_val = action.Action(ask_val)
+        if bot_val is not None:
+            root.after(0, lambda: append_chat("bot", bot_val))
+        if bot_val == "Okay, Goodbye!":
+            root.after(0, root.destroy)
+    threading.Thread(target=work, daemon=True).start()
 
 
 def send(event=None):
     send_val = entry.get()
     entry.delete(0, END)
     bot = action.Action(send_val)
-    text.config(state=NORMAL)
-    text.insert(END, "🧑 Me → " + send_val + "\n", "user")
+    append_chat("user", send_val)
     if bot is not None:
-        text.insert(END, "🤖 Bot ← " + str(bot) + "\n", "bot")
-    text.see(END)
+        append_chat("bot", bot)
     if bot == "Okay, Goodbye!":
         root.destroy()
-    text.config(state=DISABLED)
     entry.entry.focus()
 
 
@@ -302,6 +308,10 @@ entry.grid(row=0, column=0, sticky="ew")
 
 
 entry.entry.bind("<Return>", send)
+root.bind("<F9>", lambda e: ask())
+root.bind("<F1>", lambda e: show_commands())
+root.bind("<Control-l>", lambda e: del_text())
+entry.entry.focus_set()
 
 
 # ---- Buttons ----
