@@ -13,10 +13,10 @@ class GradientButton(Canvas):
         self.command = command
         self.text = text
 
-        # Colors
-        self.base_color = "#4a6cf7"
-        self.light_color = "#6f8dfd"
-        self.text_color = "#e5e5e5"
+        # # Colors
+        # self.base_color = "#4a6cf7"
+        # self.light_color = "#6f8dfd"
+        # self.text_color = "#e5e5e5"
 
         # Draw button
         self.round_rect = self.create_rounded_rect(
